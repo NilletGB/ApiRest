@@ -6,7 +6,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-//Este es un controllador basico para hacer rapidamente un ApiRest
+/**
+ * Este es un controllador basico para hacer rapidamente un ApiRest
+ */
+
 @RestController
 @RequiredArgsConstructor
 public class ProductoController {
@@ -25,18 +28,15 @@ public class ProductoController {
     }
 
     /**
-     * Obtenemos un producto en base a su ID
-     *
-     * @param id
-     * @return Null si no encuentra el producto
+     * //@PathVariable es una anotación utilizada en Spring MVC para capturar valores
+     * de variables presentes en la URL de una solicitud HTTP y utilizarlos en los métodos
+     * de controlador. Ejemplo: En este ejemplo, la anotación @PathVariable se utiliza para
+     * capturar el valor de la variable "id" presente en la URL "/producto/{id}". El valor
+     *capturado se asigna a la variable "id" del método del controlador, que luego se puede
+     *utilizar para realizar alguna lógica específica, como obtener los detalles del usuario
+     * con ese ID.
      */
-    //@PathVariable es una anotación utilizada en Spring MVC para capturar valores
-    // de variables presentes en la URL de una solicitud HTTP y utilizarlos en los métodos
-    // de controlador. Ejemplo: En este ejemplo, la anotación @PathVariable se utiliza para
-    // capturar el valor de la variable "id" presente en la URL "/producto/{id}". El valor
-    // capturado se asigna a la variable "id" del método del controlador, que luego se puede
-    // utilizar para realizar alguna lógica específica, como obtener los detalles del usuario
-    // con ese ID.
+
     @GetMapping("/producto/{id}")
     public Producto obtenerUno(@PathVariable Long id) {
         // Pedimos un producto por su ID, en el caso que no existiera nos devuelve un NULL
