@@ -3,6 +3,8 @@ package com.example.estructuraapibase.Controller;
 import com.example.estructuraapibase.Modelo.Producto;
 import com.example.estructuraapibase.Repository.ProductoRepositorio;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,10 +23,26 @@ public class ProductoController {
      *
      * @return
      */
+    /**
+     *
+     * @ResponseEntity es una clase en el framework de Spring que representa una respuesta HTTP.
+     * Proporciona métodos para configurar el código de estado, las cabeceras y el cuerpo de la respuesta.
+     * ResponseEntity se utiliza comúnmente en aplicaciones web para devolver una respuesta personalizada
+     * al cliente.
+     * En este ejemplo, el método obtenerTodos() devuelve un objeto ResponseEntity que contiene un mensaje de
+     * saludo y el código de estado HTTP 200 (OK). Esto indica que la solicitud fue exitosa. El tipo de
+     * cuerpo de la respuesta se establece como String, pero podría ser cualquier otro tipo de objeto, como
+     * un objeto JSON o XML.
+     */
     @GetMapping("/producto")
-    public List<Producto> obtenerTodos() {
+    public ResponseEntity<?> obtenerTodos() {
         // Vamos a modificar este código
-        return productoRepositorio.findAll();
+        List<Producto> result= productoRepositorio.findAll();
+        if(result.isEmpty()){
+            return ResponseEntity.notFound().build();
+        }else{
+            return ResponseEntity.ok(result);
+        }
     }
 
     /**
@@ -38,9 +56,13 @@ public class ProductoController {
      */
 
     @GetMapping("/producto/{id}")
-    public Producto obtenerUno(@PathVariable Long id) {
-        // Pedimos un producto por su ID, en el caso que no existiera nos devuelve un NULL
-        return productoRepositorio.findById(id).orElse(null);
+    public ResponseEntity<?> obtenerUno(@PathVariable Long id) {
+        Producto result = productoRepositorio.findById(id).orElse(null);
+        if(result==null){
+            return ResponseEntity.notFound().build();
+        }else{
+            return ResponseEntity.ok(result);
+        }
     }
 
     /**
@@ -63,9 +85,9 @@ public class ProductoController {
      * utilizando un convertidor adecuado (por ejemplo, un convertidor JSON si los datos están en formato JSON).
      */
     @PostMapping("/producto")
-    public Producto nuevoProducto(@RequestBody Producto nuevo) {
-        // Vamos a modificar este código
-        return productoRepositorio.save(nuevo);
+    public ResponseEntity<Producto> nuevoProducto(@RequestBody Producto nuevo) {
+        Producto saved= productoRepositorio.save(nuevo);
+        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
     /**
@@ -75,14 +97,14 @@ public class ProductoController {
      * @return
      */
     @PutMapping("/producto/{id}")
-    public Producto editarProducto(@RequestBody Producto editar, @PathVariable Long id) {
-        // Vamos a modificar este código
-        if(productoRepositorio.existsById(id)){
-            editar.setId(id);
-            return productoRepositorio.save(editar);
-        }else{
-            return null;
-        }
+    public ResponseEntity<?> editarProducto(@RequestBody Producto editar, @PathVariable Long id) {
+        return productoRepositorio.findById(id).map(p->{
+            p.setNombre(editar.getNombre());
+            p.setPrecio(editar.getPrecio());
+            return ResponseEntity.ok(productoRepositorio.save(p));
+        }).orElseGet(()-> {
+            return ResponseEntity.notFound().build();
+        });
     }
 
     /**
@@ -91,14 +113,8 @@ public class ProductoController {
      * @return
      */
     @DeleteMapping("/producto/{id}")
-    public Producto borrarProducto(@PathVariable Long id) {
-        // Vamos a modificar este código
-        if(productoRepositorio.existsById(id)){
-            Producto producto = productoRepositorio.findById(id).get();
-            productoRepositorio.deleteById(id);
-            return producto;
-        }else{
-            return null;
-        }
+    public ResponseEntity<?> borrarProducto(@PathVariable Long id) {
+        productoRepositorio.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
 }
